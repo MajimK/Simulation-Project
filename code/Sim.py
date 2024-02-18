@@ -1,6 +1,6 @@
 import numpy as np
 
-def Simulation(n,T):
+def Simulation(n,T,p):
 
     arrival=[]
     serves_queue=[]
@@ -34,9 +34,15 @@ def Simulation(n,T):
         if(min_wt < arrival_time and min_wt <= T):
             serve=wait_time.index(min_wt)
             time=min_wt
+            change_variable=np.random.uniform()
             serves_queue[serve]-=1
 
-            if(serve == n-1):
+            if (change_variable > p):
+                change_variable=np.random.uniform(0,n)
+                chan_serve=int(change_variable)
+                if (chan_serve<serve): serves_queue[chan_serve]+=1 
+
+            elif(serve == n-1):
                 out_number+=1
                 out[out_number]=time
 
@@ -59,6 +65,13 @@ def Simulation(n,T):
             serve=wait_time.index(min_wt)
             time=min_wt
             serves_queue[serve]-=1
+            change_variable=np.random.uniform()
+
+            if (change_variable > p):
+                change_variable=np.random.uniform(0,n)
+                chan_serve=int(change_variable)
+                if (chan_serve<serve): serves_queue[chan_serve]+=1
+
 
             if(serve == n-1):
                 out_number+=1
@@ -85,4 +98,4 @@ def Simulation(n,T):
 
     return (time,extra_time,arrival,out)    
 
-Simulation(2,10)
+Simulation(2,10,0.5)
