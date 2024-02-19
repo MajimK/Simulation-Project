@@ -1,6 +1,13 @@
 import numpy as np
 
-def Simulation(n,T,p):
+def Simulation(n:int,T:int,p:float):
+    """
+    Simulation function: simulate a server process with n serves connected in series
+    n: Number of server
+    T: Open time
+    p: Regress probability
+
+    """
 
     arrival=[]
     serves_queue=[]
@@ -37,18 +44,13 @@ def Simulation(n,T,p):
             change_variable=np.random.uniform()
             serves_queue[serve]-=1
 
-            if (change_variable > p):
-                change_variable=np.random.uniform(0,n)
-                chan_serve=int(change_variable)
-                if (chan_serve<serve): serves_queue[chan_serve]+=1 
-
-            elif(serve == n-1):
+            if(serve == n-1):
                 out_number+=1
                 out[out_number]=time
 
             else:
                 serves_queue[serve +1]+=1
-                arrival[serve + 1][arrival_number - sum(serves_queue)]=time
+                arrival[serve + 1][arrival_number - sum(serves_queue[:serve+1])]=time
                 if(serves_queue[serve +1]==1):
                     wrt=np.random.exponential()
                     wait_time[serve+1]=time + wrt
@@ -67,20 +69,14 @@ def Simulation(n,T,p):
             serves_queue[serve]-=1
             change_variable=np.random.uniform()
 
-            if (change_variable > p):
-                change_variable=np.random.uniform(0,n)
-                chan_serve=int(change_variable)
-                if (chan_serve<serve): serves_queue[chan_serve]+=1
-
-
             if(serve == n-1):
                 out_number+=1
                 out[out_number]=time
 
             else:
                 serves_queue[serve +1]+=1
-                arrival[serve + 1][arrival_number - sum(serves_queue)]=time
-                if(serves_queue[serve +1]==0):
+                arrival[serve + 1][arrival_number - sum(serves_queue[:serve+1])]=time
+                if(serves_queue[serve +1]==1):
                     wrt=np.random.exponential()
                     wait_time[serve+1]=time + wrt
             
@@ -98,4 +94,11 @@ def Simulation(n,T,p):
 
     return (time,extra_time,arrival,out)    
 
-Simulation(2,10,0.5)
+perro=Simulation(3,10,0.7)
+print(perro[0])
+print()
+print(perro[1])
+print()
+print(perro[2])
+print()
+print(perro[3])
