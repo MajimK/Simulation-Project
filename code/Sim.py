@@ -5,20 +5,22 @@ def Simulation(n:int,T:int,p:float):
     Simulation function: simulate a server process with n serves connected in series
     n: Number of server
     T: Open time
-    p: Regress probability
+    p: Regress probability. Preferably use a value greater than 0.5
 
     """
 
     arrival=[]
     serves_queue=[]
     wait_time=[]
+    jump_number=[]
 
     for i in range(n):
         serves_queue.append(0)
         wait_time.append(99999)
         arrival.append({})
+        jump_number.append(0)
     
-    arrival_time=time=extra_time=arrival_number=out_number=0
+    arrival_time=time=extra_time=arrival_number=out_number=jump_forward=jump_back=0
     out={}
 
     while(True):
@@ -44,7 +46,27 @@ def Simulation(n:int,T:int,p:float):
             change_variable=np.random.uniform()
             serves_queue[serve]-=1
 
-            if(serve == n-1):
+            if(change_variable>p):
+                jump_number[serve]+=1
+                while True:
+                    change_variable=np.random.uniform(0,n)
+                    chan_serve=int(change_variable)
+                    if chan_serve==serve: continue
+
+                    serves_queue[chan_serve]+=1
+                    arrival[chan_serve][arrival_number - sum(serves_queue[:chan_serve])]=time
+                    if(serves_queue[chan_serve]==1):
+                        wrt=np.random.exponential()
+                        wait_time[chan_serve]=time + wrt
+
+                    if chan_serve>serve: 
+                        jump_forward+=1
+                        break
+                    else: 
+                        jump_back+=1
+                        break
+
+            elif(serve == n-1):
                 out_number+=1
                 out[out_number]=time
 
@@ -69,7 +91,27 @@ def Simulation(n:int,T:int,p:float):
             serves_queue[serve]-=1
             change_variable=np.random.uniform()
 
-            if(serve == n-1):
+            if(change_variable>p):
+                jump_number[serve]+=1
+                while True:
+                    change_variable=np.random.uniform(0,n)
+                    chan_serve=int(change_variable)
+                    if chan_serve==serve: continue
+
+                    serves_queue[chan_serve]+=1
+                    arrival[chan_serve][arrival_number - sum(serves_queue[:chan_serve])]=time
+                    if(serves_queue[chan_serve]==1):
+                        wrt=np.random.exponential()
+                        wait_time[chan_serve]=time + wrt
+
+                    if chan_serve>serve: 
+                        jump_forward+=1
+                        break
+                    else: 
+                        jump_back+=1
+                        break
+
+            elif(serve == n-1):
                 out_number+=1
                 out[out_number]=time
 
@@ -92,13 +134,36 @@ def Simulation(n:int,T:int,p:float):
             extra_time=max(time-T,0)
             break
 
-    return (time,extra_time,arrival,out)    
+    return (time,extra_time,arrival,out,jump_number,jump_forward,jump_back)    
 
-perro=Simulation(3,10,0.7)
-print(perro[0])
-print()
-print(perro[1])
-print()
-print(perro[2])
-print()
-print(perro[3])
+
+registro=0
+while registro<10:
+    registro+=1
+    perro=Simulation(3,10,0.8)
+# Abre el archivo en modo de escritura (sobreescritura)
+    with open("Registro.txt", "a") as archivo:
+    # Escribe en el archivo
+        archivo.write('Registro-' + str(registro) + '\n')
+        archivo.write('Time:\n')
+        archivo.write(str(perro[0])+'\n')
+        archivo.write('Extra Time:\n')
+        archivo.write(str(perro[1])+'\n')
+        archivo.write('Arrival\'s time:\n')
+        archivo.write(str(perro[2])+'\n')
+        archivo.write('Out time:\n')
+        archivo.write(str(perro[3])+'\n')
+        archivo.write('Jump Number:\n')
+        archivo.write(str(perro[4])+'\n')
+        archivo.write('Jump Forward:\n')
+        archivo.write(str(perro[5])+'\n')
+        archivo.write('Jump Back:\n')
+        archivo.write(str(perro[6])+'\n')
+        archivo.write('\n')
+
+
+
+
+
+
+
