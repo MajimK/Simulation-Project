@@ -1,4 +1,8 @@
 import numpy as np
+import csv
+import pandas as pd
+from openpyxl import Workbook
+            
 
 def Simulation(n:int,T:int,p:float):
     """
@@ -135,31 +139,15 @@ def Simulation(n:int,T:int,p:float):
             break
 
     return (time,extra_time,arrival,out,jump_number,jump_forward,jump_back)    
+    
+    
+    
+        
 
 
-registro=0
-while registro<10:
-    registro+=1
-    perro=Simulation(3,10,0.8)
-# Abre el archivo en modo de escritura (sobreescritura)
-    with open("Registro.txt", "a") as archivo:
-    # Escribe en el archivo
-        archivo.write('Registro-' + str(registro) + '\n')
-        archivo.write('Time:\n')
-        archivo.write(str(perro[0])+'\n')
-        archivo.write('Extra Time:\n')
-        archivo.write(str(perro[1])+'\n')
-        archivo.write('Arrival\'s time:\n')
-        archivo.write(str(perro[2])+'\n')
-        archivo.write('Out time:\n')
-        archivo.write(str(perro[3])+'\n')
-        archivo.write('Jump Number:\n')
-        archivo.write(str(perro[4])+'\n')
-        archivo.write('Jump Forward:\n')
-        archivo.write(str(perro[5])+'\n')
-        archivo.write('Jump Back:\n')
-        archivo.write(str(perro[6])+'\n')
-        archivo.write('\n')
+
+
+    
 
 
 
