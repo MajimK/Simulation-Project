@@ -1,11 +1,12 @@
 from Sim import Simulation
 from Extract_samples import Copy_Xslx, Extract
 import pandas as pd
+from Statistic import Statistic
 
 count=0
-n=10
-T=30
-p=0.6
+n=20
+T=50
+p=0.9
 time=[]
 out=[]
 jump=[]
@@ -21,6 +22,5 @@ while count<150:
     arrival=values[3]
 
 Copy_Xslx(time,out,jump,arrival,path)
-data=pd.read_excel(path)
-mean=data.mean()
-print(mean)
+Statistic(path)
+
