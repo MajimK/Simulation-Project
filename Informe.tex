@@ -1,0 +1,220 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+
+
+\begin{document}
+\title{Informe de Simulación}
+\author {Kevin Majim Ortega Alvarez \and Lidier Robaina Caraballo}
+\maketitle
+
+\section{Introducción}
+\subsection{Breve descripciónn del proyecto}
+
+Se desea crear una simulacion que simule un proceso de atencion  a varios clientes donde los servidores se encuantran en serie, o sea un cliente para
+salir del sistema debe ser atendido por los n servidores. Cada servidor puede atender a un cliente o puede enviar a dicho cliente hacia otro servidor
+
+\subsection{Objetivos y Metas}
+Con dicha simulacion nos hemos propuesto responder las siguientes interrogantes:
+\begin{enumerate}
+\item{¿Cuánto tiempo le toma a un cliente completar su recorrido por los n servidores? ¿Qué pasa si añadimos mas servidores o aumentamos el tiempo que demora en cerrar el servicio?}
+\item{¿Cuál es la media de salto para cada servidor? ¿Qué servidor envía mas personas a otros? ¿Si modificamos parametros distintos a la probabilidad de salto aumenta o disminuye?}
+\item{¿Cuál es el tiempo promedio que demora un sistema en atender a todos los clientes? ¿Como se refleja el cambio si alteramos los parámetros?}\\
+\end{enumerate}
+Para dar respuestas a las anteriores preguntas tenemos como metas:
+\begin{enumerate}
+\item{Crear la simulación}
+\item{Realizar el análisis estadístico de los resultados obtenidos de la simulación}
+\item{Dar respuestas a nuestras interrogantes}
+\item{Plantearnos nuevas interrogantes}
+\end{enumerate}
+\subsection{El sistema}
+Los clientes llegan a un sistema que tiene n servidores, y las llegadas distribuye M. Cada cliente que llega debe ser atendido primero por el servidor 1 y, al completar el servicio en el servidor 1, el cliente pasa al servidor 2.
+
+Cuando un cliente llega, entra en servicio con el servidor 1 si ese servidor está libre, o se une a la cola del servidor 1 en caso contrario. De manera similar, cuando el cliente completa el servicio en el servidor 1, entra en servicio con el servidor 2 si ese servidor está libre, o se une a su cola y asi sucesivamente. Después de ser atendido en el servidor n, el cliente abandona el sistema.
+
+Los tiempos de servicio en el servidor i tienen la distribución Gi
+
+Además del servidor i se tiene una probabilidad p de saltar al servidor j
+
+\subsection{Variables que describen el sistema}
+\begin{enumerate}
+\item{Variable de tiempo: \textbf{time}}
+\item{Variables contadoras:}
+\begin{enumerate}[label=\alph*]
+\item{\textbf{arrival number}: Cantidad de arribos en el tiempo}
+\item{\textbf{out number}: Cantidad de salidas en el tiempo }
+\item{\textbf{jump forward}: Cantidad de saltos hacia servidores más adelantados }
+\item{\textbf{jump back}: Cantidad de saltos hacia servidores más atrasados }
+\end{enumerate}
+\item{Variables de estado del sistema}
+\begin{enumerate}[label=\alph*]
+\item{\textbf{serve's queue}: Lista que indica la cantidad de clientes en el servidor i}
+\end{enumerate}
+\item{Variables de salida}
+\begin{enumerate}[label=\alph*]
+\item{\textbf{arrival}: Lista con los diccionarios que representan el tiempo del cliente n el servidor i (donde i es el indice del servidor en la lista)}
+\item{\textbf{wait time}: Tiempo que le tomo al cliente n salir del sistema (ser atendido por cada servidor)}
+\item{\textbf{jump number}: Cantidad de saltos que se han producido desde el servidor i}
+\end{enumerate}
+\end{enumerate}
+
+\section{Detalles de Implementacion}
+
+El código está compuesto por dos archivos .py (Sim.py y main.py) donde en main se crean los parametros que se le introduciran a Sim.
+El archivo Extract\_Samples.py se encarga de la extraccion de los datos mas relevantes de la simulación y de guardarlos cada uno en
+documentos de excel. Ademas tenemos un archivo Statistic.py, el cual realiza los calculos estadisticos de los resultados que se encuentran en
+los excel.\\
+La función \textbf{Simulation} recibe como entrada:
+\begin{enumerate}
+\item{\textbf{n}: Cantidad de servidores $\rightarrow$ Int}
+\item{\textbf{T}: Tiempo que se demora en cerrar la tienda $\rightarrow$ Int}
+\item{\textbf{p}: Probabilidad con la que se desea que un servidor salte $\rightarrow$ Float}
+\end{enumerate}
+La probabilidad con la que un cliente sea enviado a otro servidor se genera a partir de una variable (change\_variable) $CH \sim \mathcal{U}(0,1)$, donde 
+el parametro p representa que: para un $change\_variable \leq p$ el servidor atiende a su cliente y no lo envia hacia otro servidor en caso contrario, a continuacion tenemos el codigo:
+\begin{tcolorbox}
+if(change\_variable$>$p):\\
+	jump\_number[serve]+=1\\
+                while True:\\
+                    change\_variable=np.random.uniform(0,n)\\
+                    chan\_serve=int(change\_variable)\\
+                    if chan\_serve==serve: continue\\
+
+\end{tcolorbox}
+Donde se vuelve a generar la variable a aleatoria $CH$, lo que ahora $CH\sim\mathcal{U}(0,n)$ para de esta forma convertirlo a entero y ese sera el servidor al que se envie el cliente. Si se envia a el mismo entonces se genera nuevamente.
+\section{Resultados y Experimentos}
+\subsection{Hallazgos de la simulación}
+
+En la simulación se recogieron algunas variables de especial interés para dar respuestas a nuestras objetivos. Variables tales como:
+\begin{enumerate}
+\item{El tiempo que total que demora el modelo}
+\item{Los tiempos que demoran cada cliente en recorrer los n servidores}
+\item{La cantidad de saltos realizados por cada servidor}
+\item{El tiempo en que un cliente es atendido por un servidor}
+\end{enumerate}
+También se extrajeron otras variables como: La cantidad de envíos a servidores más adelante y a servidores que se encuentran más atrasados dado que podemos preguntarnos tambien hacia donde van dirigidos los saltos con mayor frecuencia, y dado este caso podemos alterar el flujo para modelar situaciones más especificas. Una de las nuevas interrogantes sería: ¿Cuánto en promedio demora un servidor en atender a un cliente? Para responder está pregunta se extrajo también el tiempo en que cada cliente llega a un nuevo servidor, dado que, de esta manera se puede observar cual es el tiempo promedio que demora cada servidor en atender un cliente. Los que nos lleva a plantearnos preguntas como, ¿Qué servidor es más rápido?. Una interrogante que surge, casi al mismo tiempo con nuestro objetivo dos, es ¿hacía que servidores se envían más personas?.\\
+Los datos recogidos en el modelo se presentan en tablas de trabajo de excel, a partir de las cuales se realizan los análisis estádisticos (tales como calculo de la media y de la desviacion muestral) los cuales se guardan en bloc de notas con el mismo nombre.
+
+\subsection{Interpretación de los resultados}
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Tabla de medias para $n=3,T=20,p=0.7$}} \\
+\hline
+Tiempo & 43.80582345727979\\
+\hline
+Tiempo de salida de un cliente & 25.482363177827487\\
+\hline
+Saltos para el servidor $n_1$ & 8.746666666666666\\
+\hline
+Saltos para el servidor $n_2$ & 8.793333333333333\\
+\hline
+Saltos para el servidor $n_3$ & 8.626666666666667\\
+\hline
+LLegada al servidor $n_1$ & 10.97679634360336\\
+\hline
+Llegada al servidor $n_2$ & 17.74840758330131\\
+\hline
+Llegada al servidor $n_3$ & 21.748768873390606\\
+\hline
+\end{tabular}
+\label{tabla:ejemplo}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Tabla de medias para $n=3,T=20,p=0.8$}} \\
+\hline
+Tiempo & 38.82202390072639\\
+\hline
+Tiempo de salida de un cliente & 22.842904577624978\\
+\hline
+Saltos para el servidor $n_1$ & 4.9\\
+\hline
+Saltos para el servidor $n_2$ & 5.1\\
+\hline
+Saltos para el servidor $n_3$ & 5.373333333333333\\
+\hline
+LLegada al servidor $n_1$ & 11.012556104725936\\
+\hline
+Llegada al servidor $n_2$ & 16.203202188477857\\
+\hline
+Llegada al servidor $n_3$ & 19.73297639825384\\
+\hline
+\end{tabular}
+\label{tabla:ejemplo}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
